@@ -1,4 +1,7 @@
 # 腾讯云EdgeOne缓存清理工具
+
+直接使用链接: https://onepage.czl.net/tools/eo_cleancache.html
+
 ## 介绍
 这是一个用于清理 EdgeOne 缓存的 Cloudflare Worker + 单html页面 项目。
 
