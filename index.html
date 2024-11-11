@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>腾讯云EdgeOne缓存刷新工具</title>
+
+  <link rel="shortcut icon" href="https://i-aws.czl.net/r2/2023/06/20/649168ec9d6a8.ico">
+  <link rel="stylesheet" href="https://i-aws.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.min.css" />
+  <script src="https://i-aws.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.global.js"></script>
+  <link rel="stylesheet" href="https://i-aws.czl.net/g-f/frame/czlfonts/slice/font-noimportant.css" media="all">
+  <style>
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .config-section,
+    .operation-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .input-group {
+      margin-bottom: 10px;
+    }
+
+    .input-group label {
+      display: inline-block;
+      width: 120px;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 5px;
+    }
+
+
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 100px;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-left: 120px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>腾讯云EdgeOne缓存刷新工具</h1>
+
+  <div class="config-section">
+    <h2>配置信息</h2>
+    <div class="input-group">
+      <mdui-text-field label="SecretId" type="text" id="secretId" ></mdui-text-field>
+      <div class="help-text">从腾讯云API密钥管理页面获取: <a href="https://console.cloud.tencent.com/cam/capi" target="_blank">https://console.cloud.tencent.com/cam/capi</a></div>
+    </div>
+    <div class="input-group">
+      <mdui-text-field label="SecretKey" type="text" id="secretKey"></mdui-text-field>
+      <div class="help-text">从腾讯云API密钥管理页面获取: <a href="https://console.cloud.tencent.com/cam/capi" target="_blank">https://console.cloud.tencent.com/cam/capi</a></div>
+    </div>
+    <div class="input-group">
+      <mdui-text-field label="ZoneId" type="text" id="zoneId"></mdui-text-field>
+        <div class="help-text">从EdgeOne控制台站点信息中获取: <a href="https://console.cloud.tencent.com/edgeone/zones" target="_blank">https://console.cloud.tencent.com/edgeone/zones</a></div>
+    </div>
+  </div>
+
+  <div class="operation-section">
+    <h2>操作</h2>
+    <div class="input-group">
+      <mdui-text-field type="text" id="targets" label="目标地址/标签" placeholder="多个地址用逗号分隔">
+    </div>
+    <div>
+      <h3>快速示例：</h3>
+      <mdui-button variant="text" onclick="fillExample('url')">URL刷新示例</mdui-button>
+      <mdui-button variant="text" onclick="fillExample('prefix')">目录刷新示例</mdui-button>
+      <mdui-button variant="text" onclick="fillExample('host')">Host刷新示例</mdui-button>
+      <mdui-button variant="text" onclick="fillExample('all')">全部刷新示例</mdui-button>
+      <mdui-button variant="text" onclick="fillExample('tag')">Cache Tag示例</mdui-button>
+    </div>
+    <div style="margin-top: 10px;">
+      <mdui-button variant="elevated" onclick="purgeUrl()">URL刷新</mdui-button>
+      <mdui-button variant="elevated" onclick="purgePrefix()">目录刷新</mdui-button>
+      <mdui-button variant="elevated" onclick="purgeHost()">Host刷新</mdui-button>
+      <mdui-button variant="elevated" onclick="purgeAll()">刷新全部</mdui-button>
+      <mdui-button variant="elevated" onclick="purgeCacheTag()">Cache Tag刷新</mdui-button>
+    </div>
+  </div>
+
+  <div id="result">
+    <h3>执行结果：</h3>
+    <pre id="resultContent"></pre>
+  </div>
+
+  <script>
+    // 页面加载时恢复保存的配置
+    window.onload = function () {
+      document.getElementById('secretId').value = localStorage.getItem('secretId') || '';
+      document.getElementById('secretKey').value = localStorage.getItem('secretKey') || '';
+      document.getElementById('zoneId').value = localStorage.getItem('zoneId') || '';
+    }
+
+    // 保存配置
+    function saveConfig() {
+      localStorage.setItem('secretId', document.getElementById('secretId').value);
+      localStorage.setItem('secretKey', document.getElementById('secretKey').value);
+      localStorage.setItem('zoneId', document.getElementById('zoneId').value);
+    }
+
+    // 监听输入变化保存配置
+    document.getElementById('secretId').addEventListener('change', saveConfig);
+    document.getElementById('secretKey').addEventListener('change', saveConfig);
+    document.getElementById('zoneId').addEventListener('change', saveConfig);
+
+    // 获取配置信息
+    function getConfig() {
+      return {
+        secretId: document.getElementById('secretId').value,
+        secretKey: document.getElementById('secretKey').value,
+        zoneId: document.getElementById('zoneId').value,
+        targets: document.getElementById('targets').value.split(',').map(t => t.trim()).filter(t => t)
+      };
+    }
+
+    // API调用函数
+    async function callApi(type, method = 'invalidate') {
+      const config = getConfig();
+      if (!config.secretId || !config.secretKey || !config.zoneId) {
+        alert('请填写完整的配置信息！');
+        return;
+      }
+
+      const payload = {
+        secretId: config.secretId,
+        secretKey: config.secretKey,
+        zoneId: config.zoneId,
+        type: type,
+        targets: config.targets,
+        method: method
+      };
+
+      try {
+        const response = await fetch('https://eo-cleancache.czl.net/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        document.getElementById('resultContent').textContent = JSON.stringify(result, null, 2);
+      } catch (error) {
+        document.getElementById('resultContent').textContent = '错误：' + error.message;
+      }
+    }
+
+    function purgeUrl() {
+      callApi('purge_url');
+    }
+
+    function purgePrefix() {
+      callApi('purge_prefix');
+    }
+
+    function purgeHost() {
+      callApi('purge_host');
+    }
+
+    function purgeAll() {
+      callApi('purge_all');
+    }
+
+    function purgeCacheTag() {
+      callApi('purge_cache_tag');
+    }
+  </script>
+
+  <script>
+    function fillExample(type) {
+      const examples = {
+        'url': 'https://test.czl.net/123.txt',
+        'prefix': 'https://test.czl.net/book/',
+        'host': 'test.czl.net',
+        'all': '',
+        'tag': 'tag1'
+      };
+      document.getElementById('targets').value = examples[type];
+    }
+  </script>
+</body>
+
+</html>
