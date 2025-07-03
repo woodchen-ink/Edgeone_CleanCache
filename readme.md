@@ -13,7 +13,7 @@
 
 ## 使用方法和部署方法
 
-看帖子: https://q58.pro/t/topic/181?u=wood
+看帖子: https://www.sunai.net/t/topic/181?u=wood
 
 ## 注意事项
 
