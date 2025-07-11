@@ -1,19 +1,23 @@
 # 腾讯云EdgeOne缓存清理工具
 
-直接使用链接: https://onepage.czl.net/tools/eo_cleancache.html
+直接使用链接: https://onepage.czl.net/tools/eo_cleancache
 
 ## 介绍
-这是一个用于清理 EdgeOne 缓存的 Cloudflare Worker + 单html页面 项目。
+这是一个用于清理 EdgeOne 缓存的 Edgeone Pages 项目, 通过静态页面+边缘函数实现快捷清理edgeone缓存。
+
+[![Use EdgeOne Pages to deploy](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?repository-url=https://github.com/woodchen-ink/Edgeone_CleanCache)
 
 ## 功能
 
 - 提供了一个 API 接口，用于提交缓存清理任务。
 - 支持多种缓存清理类型，如文件、目录、路径前缀等。
 - 可以通过配置文件指定腾讯云 API 的密钥和其他参数。
+- 保存多个配置到浏览器内存, 选择即用, 不需要反复填写.
+- 全部代码开源, 放心使用, 自部署方便.
 
-## 使用方法和部署方法
+## 分步骤部署方法
 
-看帖子: https://www.sunai.net/t/topic/181?u=wood
+看帖子: https://www.sunai.net/t/topic/181
 
 ## 注意事项
 

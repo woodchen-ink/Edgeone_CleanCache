@@ -1,0 +1,29 @@
+{
+  "conf": {},
+  "routes": [
+    {
+      "routePath": "/api/clean-eo-cache",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/clean-eo-cache.js:onRequest"
+      ]
+    },
+    {
+      "routePath": "/api/clean-eo-cache",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/clean-eo-cache.js:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/clean-eo-cache",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/clean-eo-cache.js:onRequestOptions"
+      ]
+    }
+  ]
+}
