@@ -1,6 +1,6 @@
 # 腾讯云EdgeOne缓存清理工具
 
-直接使用链接: https://onepage.czl.net/tools/eo_cleancache
+直接使用链接: https://eoccc.edgeone.site/
 
 ## 介绍
 这是一个用于清理 EdgeOne 缓存的 Edgeone Pages 项目, 通过静态页面+边缘函数实现快捷清理edgeone缓存。
