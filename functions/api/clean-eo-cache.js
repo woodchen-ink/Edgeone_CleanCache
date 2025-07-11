@@ -1,10 +1,9 @@
-// 边缘函数 - 腾讯云 EdgeOne 缓存清理
+// 腾讯云 V3 签名算法
 async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArray) {
   const HTTPRequestMethod = "POST";
   const CanonicalURI = "/";
   const CanonicalQueryString = "";
 
-  // 按 ASCII 升序排序
   const sortHeadersArray = Object.keys(headersArray)
     .sort()
     .reduce((obj, key) => {
@@ -15,13 +14,11 @@ async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArra
   let SignedHeaders = "";
   let CanonicalHeaders = "";
 
-  // 拼接键
   for (const key in sortHeadersArray) {
     SignedHeaders += key.toLowerCase() + ';';
   }
   SignedHeaders = SignedHeaders.slice(0, -1);
 
-  // 拼接键和值
   for (const key in sortHeadersArray) {
     CanonicalHeaders += `${key.toLowerCase()}:${sortHeadersArray[key].toLowerCase()}\n`;
   }
@@ -34,7 +31,6 @@ async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArra
   const CanonicalRequest =
     `${HTTPRequestMethod}\n${CanonicalURI}\n${CanonicalQueryString}\n${CanonicalHeaders}\n${SignedHeaders}\n${HashedRequestPayload}`;
 
-  // 时间戳
   const RequestTimestamp = Math.floor(Date.now() / 1000);
   const formattedDate = new Date(RequestTimestamp * 1000).toISOString().split('T')[0];
   const Algorithm = "TC3-HMAC-SHA256";
@@ -48,7 +44,6 @@ async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArra
   const StringToSign =
     `${Algorithm}\n${RequestTimestamp}\n${CredentialScope}\n${HashedCanonicalRequest}`;
 
-  // HMAC-SHA256 签名计算
   async function hmac(key, string) {
     const cryptoKey = await crypto.subtle.importKey(
       'raw',
@@ -94,21 +89,22 @@ async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArra
   return headersArray;
 }
 
-export default async function handler(request) {
-  // 处理 CORS 预检请求
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      }
-    });
-  }
+// 处理 OPTIONS 请求
+export function onRequestOptions(context) {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
+}
 
+// 处理 POST 请求
+export async function onRequestPost(context) {
   try {
-    const data = await request.json();
-    const { secretId, secretKey, zoneId, type, targets, method = 'invalidate' } = data;
+    const data = await context.request.json();
+    const { secretId, secretKey, zoneId, type, targets } = data;
 
     const service = "teo";
     const host = "teo.tencentcloudapi.com";
@@ -152,4 +148,15 @@ export default async function handler(request) {
       }
     });
   }
+}
+
+// 处理其他 HTTP 方法
+export function onRequest(context) {
+  return new Response(JSON.stringify({ error: 'Only POST method is allowed' }), {
+    status: 405,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    }
+  });
 }
