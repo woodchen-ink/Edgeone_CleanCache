@@ -90,7 +90,7 @@ async function qcloudV3Post(secretId, secretKey, service, bodyArray, headersArra
 }
 
 // 处理 OPTIONS 请求
-export function onRequestOptions(context) {
+export function onRequestOptions() {
   return new Response(null, {
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -151,7 +151,7 @@ export async function onRequestPost(context) {
 }
 
 // 处理其他 HTTP 方法
-export function onRequest(context) {
+export function onRequest() {
   return new Response(JSON.stringify({ error: 'Only POST method is allowed' }), {
     status: 405,
     headers: {
