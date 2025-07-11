@@ -4,10 +4,9 @@
 <head>
   <title>腾讯云EdgeOne缓存刷新工具</title>
 
-  <link rel="shortcut icon" href="https://i-aws.czl.net/r2/2023/06/20/649168ec9d6a8.ico">
-  <link rel="stylesheet" href="https://i-aws.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.min.css" />
-  <script src="https://i-aws.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.global.js"></script>
-  <link rel="stylesheet" href="https://i-aws.czl.net/g-f/frame/czlfonts/slice/font-noimportant.css" media="all">
+  <link rel="shortcut icon" href="https://i.czl.net/r2/2023/06/20/649168ec9d6a8.ico">
+  <link rel="stylesheet" href="https://i.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.min.css" />
+  <script src="https://i.czl.net/cdnjs/ajax/libs/mdui/2.1.3/mdui.global.js"></script>
   <style>
     body {
       max-width: 800px;
@@ -149,7 +148,7 @@
       };
 
       try {
-        const response = await fetch('https://eo-cleancache.czl.net/', {
+        const response = await fetch('/api/clean-eo-cache', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
